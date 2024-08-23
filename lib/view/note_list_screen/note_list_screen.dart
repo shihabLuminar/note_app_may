@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:note_app_may/dummy_db.dart';
+import 'package:note_app_may/utils/color_constants.dart';
 import 'package:note_app_may/view/note_list_screen/widgets/note_card.dart';
 
 class NoteListScreen extends StatefulWidget {
@@ -15,10 +16,20 @@ class _NoteListScreenState extends State<NoteListScreen> {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+
+  List noteColors = [
+    ColorConstants.lightBlue,
+    ColorConstants.lightCoral,
+    ColorConstants.lightGreen,
+    ColorConstants.lightPink,
+    ColorConstants.lightYellow,
+  ];
+
+  int selectedColorIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color(0xff697565),
+        backgroundColor: Color(0xff921A40),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Color(0xffECDFCC),
           onPressed: () {
@@ -30,7 +41,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
           },
           child: Icon(
             Icons.add,
-            color: Color(0xff697565),
+            color: Color(0xff921A40),
           ),
         ),
         body: SafeArea(
@@ -42,6 +53,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
             crossAxisSpacing: 4,
             itemBuilder: (context, index) {
               return NoteCard(
+                cardColor: noteColors[DummyDb.notesList[index]["clrIndex"]],
                 title: DummyDb.notesList[index]["title"],
                 description: DummyDb.notesList[index]["des"],
                 date: DummyDb.notesList[index]["date"],
@@ -65,7 +77,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
   Future<dynamic> customBottomSheet(BuildContext context,
       {bool isEdit = false, int? index}) {
     return showModalBottomSheet(
-        backgroundColor: Color(0xff697565),
+        backgroundColor: Color(0xff921A40),
         isScrollControlled: true,
         context: context,
         builder: (context) => Padding(
@@ -121,6 +133,43 @@ class _NoteListScreenState extends State<NoteListScreen> {
                                 icon: Icon(Icons.calendar_month_outlined))),
                       ),
                       SizedBox(height: 16),
+                      StatefulBuilder(
+                        builder: (context, setState) => Row(
+                          children: List.generate(
+                              noteColors.length,
+                              (index) => Expanded(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 5),
+                                      child: InkWell(
+                                        onTap: () {
+                                          selectedColorIndex = index;
+                                          setState(
+                                            () {},
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                              border:
+                                                  selectedColorIndex == index
+                                                      ? Border.all(
+                                                          width: 3,
+                                                          color: Colors.black)
+                                                      : null,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: noteColors[index]),
+                                          child: selectedColorIndex == index
+                                              ? Icon(Icons.check)
+                                              : null,
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                        ),
+                      ),
+                      SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
@@ -151,6 +200,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                                   "title": titleController.text,
                                   "des": descriptionController.text,
                                   "date": dateController.text,
+                                  "clrIndex": selectedColorIndex
                                 };
                               } else {
                                 DummyDb.notesList.add(
@@ -158,6 +208,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                                     "title": titleController.text,
                                     "des": descriptionController.text,
                                     "date": dateController.text,
+                                    "clrIndex": selectedColorIndex
                                   },
                                 );
                               }
